@@ -1,8 +1,7 @@
-import 'package:expensetrackerapp/login.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'home.dart';
-
+import 'login.dart';
+import 'components.dart';
 
 class SignUpPage extends StatefulWidget {
   @override
@@ -13,67 +12,123 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  String _nameError = '';
+  String _emailError = '';
+  String _passwordError = '';
 
   void _signUpWithEmailAndPassword() async {
-  try {
-  final UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-  email: _emailController.text.trim(),
-  password: _passwordController.text.trim(),
-  );
+    // Reset any previous error messages
+    setState(() {
+      _nameError = '';
+      _emailError = '';
+      _passwordError = '';
+    });
 
-  final User? user = userCredential.user; // Use User? to handle potential null value
+    try {
+      final UserCredential userCredential =
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
 
-  if (user != null) {
-  // Set the user's display name to the provided name
-  await user.updateDisplayName(_nameController.text.trim());
+      final User? user = userCredential.user;
 
-  // User signed up successfully, you can navigate to a different page here.
-  // For example, you can use Navigator to go to the home page.
-  Navigator.of(context).pushReplacement(MaterialPageRoute(
-  builder: (context) => LoginPage(), // Replace with your home page
-  ));
+      if (user != null) {
+        await user.updateDisplayName(_nameController.text.trim());
+
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => LoginPage(),
+        ));
+      }
+    } catch (e) {
+      if (e is FirebaseAuthException) {
+        if (e.code == 'email-already-in-use') {
+          setState(() {
+            _emailError = 'Email already in use';
+          });
+        } else {
+          setState(() {
+            _emailError = 'Sign-up failed';
+          });
+        }
+      }
+    }
   }
-  } catch (e) {
-  // Handle sign-up errors, e.g., show an error message.
-  print('Error during sign-up: $e');
-  }
-  }
-
 
   @override
   Widget build(BuildContext context) {
-  return Scaffold(
-  appBar: AppBar(
-  title: Text('Sign-Up Page'),
-  ),
-  body: Padding(
-  padding: EdgeInsets.all(16.0),
-  child: Column(
-  children: <Widget>[
-  TextField(
-  controller: _nameController,
-  decoration: InputDecoration(labelText: 'Name'),
-  ),
-  TextField(
-  controller: _emailController,
-  decoration: InputDecoration(labelText: 'Email'),
-  ),
-  TextField(
-  controller: _passwordController,
-  decoration: InputDecoration(labelText: 'Password'),
-  obscureText: true,
-  ),
-  ElevatedButton(
-  onPressed: _signUpWithEmailAndPassword,
-  child: Text('Sign Up'),
-  ),
-  ],
-  ),
-  ),
-  );
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'SIGN UP',
+          style: TextStyle(
+            color: Colors.white, // Set text color to white
+          ),
+        ),
+        backgroundColor: primaryColor,
+        centerTitle: true,// Use primaryColor for the app bar background color
+      ),
+      body: commonBackground(
+        color: secondaryColor, // Use secondaryColor for the background color
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: ListView(
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.only(top: 32.0),
+                    child: Image.asset(
+                      'assets/images/signup.png',
+                      height: 300,
+                      width: 300,
+                    ),
+                  ),
+                  TextField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Name',
+                      fillColor: Colors.white, // Use white as the text field background color
+                      filled: true,
+                      errorText: _nameError.isNotEmpty ? _nameError : null,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      fillColor: Colors.white, // Use white as the text field background color
+                      filled: true,
+                      errorText: _emailError.isNotEmpty ? _emailError : null,
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      fillColor: Colors.white, // Use white as the text field background color
+                      filled: true,
+                      errorText: _passwordError.isNotEmpty ? _passwordError : null,
+                    ),
+                    obscureText: true,
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _signUpWithEmailAndPassword,
+                    style: commonButtonStyle, // Use commonButtonStyle for the button
+                    child: Text(
+                      'Sign Up',
+                      style: buttonTextStyle, // Use buttonTextStyle for button text
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
-  }
-
-
-
-
+}
