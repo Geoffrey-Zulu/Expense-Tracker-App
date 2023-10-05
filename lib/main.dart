@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'home.dart'; // Import the HomePage widget
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'login.dart';
@@ -16,9 +17,6 @@ Future<void> initializeFirebase() async {
   );
 }
 
-
-
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -27,7 +25,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: LoginPage(), // Set the initial route to the LoginPage
+      home: HomePage(), // Set the initial route to the HomePage
     );
   }
 }
