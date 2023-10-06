@@ -1,3 +1,4 @@
+import 'package:expensetrackerapp/components.dart';
 import 'package:flutter/material.dart';
 import 'expense_form.dart'; // Import the ExpenseFormScreen widget
 import 'expense_item.dart';
@@ -7,7 +8,14 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Expense Tracker'),
+        title: Text('Expense Tracker',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: primaryColor,
       ),
       body: ExpenseList(), // Add your expense list widget here
       floatingActionButton: ExpenseFABWithForm(), // Add your FAB here
@@ -92,6 +100,7 @@ class ExpenseFABWithForm extends StatelessWidget {
         );
       },
       child: Icon(Icons.add),
+      backgroundColor: primaryColor,
     );
   }
 }
