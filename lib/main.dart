@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'home.dart'; // Import the HomePage widget
+import 'home.dart';
+import 'settings.dart';
+import 'statistics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'login.dart';
-import 'signup.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,11 +22,17 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Your App Name',
+      title: 'Expense Tracker App',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(), // Set the initial route to the HomePage
+      home: HomeScreen(), // Set the initial route to the HomeScreen
+      routes: {
+        '/home': (context) => HomeScreen(), // Add settings screen route
+        '/settings': (context) => SettingsScreen(), // Add settings screen route
+        '/statistics': (context) => StatisticsScreen(), // Add statistics screen route
+      },
     );
   }
 }
+

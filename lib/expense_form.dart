@@ -1,29 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:image_picker/image_picker.dart';
 import 'components.dart';
+import 'dart:io';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:geolocator/geolocator.dart';
 
-class ExpenseFABWithForm extends StatelessWidget {
+
+class ExpenseForm extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () {
-        // Navigate to the expense form when FAB is tapped
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => ExpenseForm(),
-          ),
-        );
-      },
-      child: Icon(Icons.add),
-      backgroundColor: primaryColor, // Apply custom background color
-    );
-  }
+  _ExpenseFormState createState() => _ExpenseFormState();
 }
 
-class ExpenseForm extends StatelessWidget {
+class _ExpenseFormState extends State<ExpenseForm> {
   final TextEditingController amountController = TextEditingController();
-  final TextEditingController dateController = TextEditingController();
+  final DateTime currentDate = DateTime.now();
   final TextEditingController categoryController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  final ImagePicker _imagePicker = ImagePicker();
+  File? pickedImage;
+  String? latitude;
+  String? longitude;
+
+
+  Future<void> pickImage() async {
+    final XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        pickedImage = File(image.path);
+      });
+    }
+  }
+
+  Future<void> getLocation() async {
+    final PermissionStatus status = await Permission.location.request();
+    if (status.isGranted) {
+      final Position? currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      setState(() {
+        latitude = currentPosition?.latitude.toString();
+        longitude = currentPosition?.longitude.toString();
+      });
+    } else {
+      // Handle permission denied
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +56,9 @@ class ExpenseForm extends StatelessWidget {
         backgroundColor: primaryColor,
         title: Text(
           'Add Expense',
-          style: headingTextStyle.copyWith(color: Colors.white), // Apply custom text style
+          style: headingTextStyle.copyWith(color: Colors.white),
         ),
-        centerTitle: true, // Center align the title
+        centerTitle: true,
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -53,17 +77,17 @@ class ExpenseForm extends StatelessWidget {
               ),
               SizedBox(height: 16.0),
               TextFormField(
-                controller: dateController,
+                controller: TextEditingController(text: DateFormat('dd/MM/yyyy').format(DateTime.now())),
                 decoration: InputDecoration(
                   labelText: 'Date',
                   border: OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.datetime,
+                readOnly: true,
               ),
               SizedBox(height: 16.0),
-              // DropdownButtonFormField for Category
               DropdownButtonFormField(
-                items: <String>['Category 1', 'Category 2', 'Category 3', 'Category 4']
+                items: <String>['Food', 'Groceries', 'Utilities', 'Leisure']
                     .map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
@@ -88,21 +112,32 @@ class ExpenseForm extends StatelessWidget {
               ),
               SizedBox(height: 16.0),
               ElevatedButton.icon(
-                onPressed: () {
-                  // Implement image selection/upload logic here
-                },
+                onPressed: pickImage,
                 icon: Icon(Icons.image),
                 label: Text('Select Image'),
-                style: commonButtonStyle, // Apply custom button style
+                style: commonButtonStyle,
               ),
               SizedBox(height: 16.0),
+              Text(pickedImage?.path ?? ''),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: () {
+                  getLocation();
+                },
+                style: commonButtonStyle,
+                child: Text('Get Location'),
+              ),
+              SizedBox(height: 20.0),
+              Text('${latitude ?? ""}'),
+              SizedBox(height: 10.0),
+              Text('${longitude ?? ""}'),
               ElevatedButton(
                 onPressed: () {
                   // Implement expense submission logic here
                   Navigator.of(context).pop(); // Close the bottom sheet
                 },
-                child: Text('Submit Expense', style: buttonTextStyle), // Apply custom text style
-                style: commonButtonStyle, // Apply custom button style
+                child: Text('Submit Expense', style: buttonTextStyle),
+                style: commonButtonStyle,
               ),
             ],
           ),
